@@ -48,13 +48,19 @@ unsigned long lastConnectionTime = 0;             // last time you connected to 
 const unsigned long postingInterval =  10000L; // delay between updates, in milliseconds
 // the "L" is needed to use long type numbers
 
+char a;
+
+int piezoPin = 8;
+        
 void setup() {
   // start serial port:
   Serial.begin(9600);
+  a = "0";
+
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-
+     
   // give the ethernet module time to boot up:
   delay(1000);
   // start the Ethernet connection using a fixed IP address and DNS server:
@@ -70,7 +76,24 @@ void loop() {
   // purposes only:
   if (client.available()) {
     char c = client.read();
-    Serial.write(c);
+    if(c=='|') {
+    char a = client.read();
+    if (a=='1'){
+       tone(piezoPin, 1000, 500);
+       tone(piezoPin, 1000, 500);
+       tone(piezoPin, 1000, 500);
+       Serial.write("1");
+      } else if (a=='2'){
+       tone(piezoPin, 1000, 500);
+       tone(piezoPin, 1000, 500);
+       Serial.write("2");       
+      } else if (a=='3'){
+        tone(piezoPin, 1000, 500);
+       Serial.write("3");       
+      } else {
+       Serial.write("0");
+        }       
+      }
   }
 
   // if ten seconds have passed since your last connection,
@@ -89,7 +112,7 @@ void httpRequest() {
 
   // if there's a successful connection:
   if (client.connect(server, 80)) {
-    Serial.println("connecting...");
+    //Serial.println("connecting...");
     // send the HTTP GET request:
     client.println("GET /buzzer HTTP/1.1");
     client.println("Host: volley-vr.44fs.preview.openshiftapps.com");
@@ -103,4 +126,5 @@ void httpRequest() {
     // if you couldn't make a connection:
     Serial.println("connection failed");
   }
+    
 }
